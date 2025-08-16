@@ -20,7 +20,8 @@ function HomePage() {
       const response = await authFetch('/api/organizations/');
       const data = await response.json();
       if (response.ok) {
-        setOrganizations(data.results);
+        // Support both paginated and direct array responses
+        setOrganizations(data.results || data || []);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
