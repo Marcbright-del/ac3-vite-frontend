@@ -39,28 +39,27 @@ function HomePage() {
 
 const handleRunScan = async (orgId) => {
     toast.info("Scan initiated..."); // Show an initial message
-    try {
-        const response = await authFetch('/api/scans/create/', {
-            method: 'POST',
-            body: JSON.stringify({ organization_id: orgId, user_id: user.user_id }),
-        });
+  try {
+    const response = await authFetch('/api/scans/create/', {
+      method: 'POST',
+      body: JSON.stringify({ organization_id: orgId, user_id: user.user_id }),
+    });
 
-        const data = await response.json();
+    const data = await response.json();
 
-        if (response.ok) {
-            // If the scan was successful, show a success message
-            toast.success(`Scan complete! New score: ${data.score}%`);
-            // CRUCIAL: Re-fetch the organization list to update the UI
-            fetchOrganizations(); 
-        } else {
-            // If the server sent back an error
-            toast.error("Scan failed on the server.");
-        }
-    } catch (error) {
-        // If there was a network error
-        console.error('Error running scan:', error);
-        toast.error('Error running scan. See console for details.');
+    // Consider scan successful if score is present and is a number
+    if ((response.ok && typeof data.score === 'number') || (typeof data.score === 'number')) {
+      toast.success(`Scan complete! New score: ${data.score}%`);
+      fetchOrganizations();
+    } else {
+      // Show error only if truly failed
+      const errorMsg = data?.error || data?.message || "Scan failed. See console for details.";
+      toast.error(errorMsg);
     }
+  } catch (error) {
+    console.error('Error running scan:', error);
+    toast.error('Network or server error running scan.');
+  }
 };
 
   const getRiskBadgeColor = (riskLevel) => {
