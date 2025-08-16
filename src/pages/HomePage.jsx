@@ -37,7 +37,7 @@ function HomePage() {
 
   const handleRunScan = async (orgId) => {
     try {
-      const response = await authFetch('https://ac3-backend.onrender.com/api/scans/create/', {
+      const response = await authFetch('/api/scans/create/', {
         method: 'POST',
         body: JSON.stringify({ organization_id: orgId, user_id: user.user_id }),
       });
