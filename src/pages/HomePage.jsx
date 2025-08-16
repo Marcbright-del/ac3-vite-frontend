@@ -18,7 +18,7 @@ function HomePage() {
       const response = await authFetch('/api/organizations/');
       const data = await response.json();
       if (response.ok) {
-        setOrganizations(data);
+        setOrganizations(data.results);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -34,25 +34,31 @@ function HomePage() {
     }
   }, [authTokens]);
 
-  const handleRunScan = async (orgId) => {
-    toast.info("Scan initiated..."); // Give immediate feedback
+const handleRunScan = async (orgId) => {
+    toast.info("Scan initiated..."); // Show an initial message
     try {
-      const response = await authFetch('/api/scans/create/', {
-        method: 'POST',
-        body: JSON.stringify({ organization_id: orgId }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        toast.success(`Scan complete! New score: ${data.score}%`);
-        fetchOrganizations(); // <-- THIS IS THE FIX: Refresh the data
-      } else {
-        toast.error("Scan failed. See console for details.");
-      }
+        const response = await authFetch('/api/scans/create/', {
+            method: 'POST',
+            body: JSON.stringify({ organization_id: orgId, user_id: user.user_id }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // If the scan was successful, show a success message
+            toast.success(`Scan complete! New score: ${data.score}%`);
+            // CRUCIAL: Re-fetch the organization list to update the UI
+            fetchOrganizations(); 
+        } else {
+            // If the server sent back an error
+            toast.error("Scan failed on the server.");
+        }
     } catch (error) {
-      console.error('Error running scan:', error);
-      toast.error('Error running scan. See console for details.');
+        // If there was a network error
+        console.error('Error running scan:', error);
+        toast.error('Error running scan. See console for details.');
     }
-  };
+};
 
   const getRiskBadgeColor = (riskLevel) => {
     switch (riskLevel) {
