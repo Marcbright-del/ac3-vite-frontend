@@ -86,7 +86,15 @@ function HomePage() {
                                 </div>
                                 <div className="flex items-center space-x-4">
                                     <div className="text-right">
-                                        <p className="font-bold text-lg">{org.latest_scan_score !== null ? `${org.latest_scan_score}%` : 'N/A'}</p>
+                                        <p className="font-bold text-lg">
+                                          {org.latest_scan_score !== null && org.latest_scan_score !== 'API Error' && org.latest_scan_score !== 'Network Error'
+                                            ? `${org.latest_scan_score}%`
+                                            : org.latest_scan_score === 'API Error'
+                                              ? 'API Error: Unable to fetch scan result.'
+                                              : org.latest_scan_score === 'Network Error'
+                                                ? 'Network Error: Please check your connection.'
+                                                : 'N/A'}
+                                        </p>
                                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full text-white ${getRiskBadgeColor(org.latest_scan_risk)}`}>
                                             {org.latest_scan_risk}
                                         </span>
