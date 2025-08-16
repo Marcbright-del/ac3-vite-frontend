@@ -59,7 +59,7 @@ const handleRunScan = async (orgId) => {
     } catch (error) {
         // If there was a network error
         console.error('Error running scan:', error);
-        toast.error('Error running scan. See console for details.');
+        
     }
 };
 
