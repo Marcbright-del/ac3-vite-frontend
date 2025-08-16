@@ -8,6 +8,8 @@ import Spinner from '../components/Spinner.jsx';
 
 function HomePage() {
   const [organizations, setOrganizations] = useState([]);
+  // Always use an array for rendering
+  const safeOrganizations = Array.isArray(organizations) ? organizations : [];
   const [isLoading, setIsLoading] = useState(true);
   const { user, authTokens } = useContext(AuthContext);
   const authFetch = useAuthFetch();
@@ -76,52 +78,52 @@ const handleRunScan = async (orgId) => {
       <div className="bg-gray-800 p-6 rounded-lg shadow-xl">
         <h2 className="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">Organizations List</h2>
         
-        {isLoading ? (
-            <Spinner />
+    {isLoading ? (
+      <Spinner />
+    ) : (
+      <div className="org-list">
+        {safeOrganizations.length > 0 ? (
+          <ul className="space-y-4">
+            {safeOrganizations.map(org => (
+              <li key={org.id} className="bg-gray-700 p-4 rounded-md flex justify-between items-center">
+                <div>
+                  <Link to={`/organization/${org.id}`} className="text-lg text-white font-bold hover:text-cyan-400">
+                    {org.name}
+                  </Link>
+                  <p className="text-sm text-gray-400">{org.industry}</p>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="text-right">
+                    <p className="font-bold text-lg">
+                      {org.latest_scan_score !== null && org.latest_scan_score !== 'API Error' && org.latest_scan_score !== 'Network Error'
+                      ? `${org.latest_scan_score}%`
+                      : org.latest_scan_score === 'API Error'
+                        ? 'API Error: Unable to fetch scan result.'
+                        : org.latest_scan_score === 'Network Error'
+                        ? 'Network Error: Please check your connection.'
+                        : 'N/A'}
+                    </p>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full text-white ${getRiskBadgeColor(org.latest_scan_risk)}`}>
+                      {org.latest_scan_risk}
+                    </span>
+                  </div>
+                  {user && user.role === 'admin' && (
+                    <button
+                      onClick={() => handleRunScan(org.id)}
+                      className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-1 px-3 rounded text-sm"
+                    >
+                      Run Scan
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
         ) : (
-            <div className="org-list">
-                {organizations.length > 0 ? (
-                    <ul className="space-y-4">
-                        {organizations.map(org => (
-                            <li key={org.id} className="bg-gray-700 p-4 rounded-md flex justify-between items-center">
-                                <div>
-                                    <Link to={`/organization/${org.id}`} className="text-lg text-white font-bold hover:text-cyan-400">
-                                        {org.name}
-                                    </Link>
-                                    <p className="text-sm text-gray-400">{org.industry}</p>
-                                </div>
-                                <div className="flex items-center space-x-4">
-                                    <div className="text-right">
-                                        <p className="font-bold text-lg">
-                                          {org.latest_scan_score !== null && org.latest_scan_score !== 'API Error' && org.latest_scan_score !== 'Network Error'
-                                            ? `${org.latest_scan_score}%`
-                                            : org.latest_scan_score === 'API Error'
-                                              ? 'API Error: Unable to fetch scan result.'
-                                              : org.latest_scan_score === 'Network Error'
-                                                ? 'Network Error: Please check your connection.'
-                                                : 'N/A'}
-                                        </p>
-                                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full text-white ${getRiskBadgeColor(org.latest_scan_risk)}`}>
-                                            {org.latest_scan_risk}
-                                        </span>
-                                    </div>
-                                    {user && user.role === 'admin' && (
-                                        <button
-                                            onClick={() => handleRunScan(org.id)}
-                                            className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-1 px-3 rounded text-sm"
-                                        >
-                                            Run Scan
-                                        </button>
-                                    )}
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p className="text-gray-500">No organizations found.</p>
-                )}
-            </div>
+          <p className="text-gray-500">No organizations found.</p>
         )}
+      </div>
+    )}
       </div>
     </>
   );
