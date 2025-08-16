@@ -18,7 +18,7 @@ function HomePage() {
       const response = await authFetch('/api/organizations/');
       const data = await response.json();
       if (response.ok) {
-        setOrganizations(data.results);
+        setOrganizations(data);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
